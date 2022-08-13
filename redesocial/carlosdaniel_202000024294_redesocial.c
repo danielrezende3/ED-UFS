@@ -2,131 +2,143 @@
 #include <stdlib.h>
 #include <string.h>
 
+FILE *pFile_output;
+FILE *pFile_input;
+
 typedef struct Node
 {
-    char data[51];
-    struct Node *prev;
+    char name[51];
     struct Node *next;
+    struct Node *prev;
 } Node;
 
-struct Node *head;
-FILE *file_input;
-FILE *file_output;
-char buffer_in[256], buffer_out[256];
-
-void insertion(char name[])
+void add(struct Node **head, char name[])
 {
-    struct Node *ptr, *temp;
-    ptr = (struct Node *)malloc(sizeof(struct Node));
-    if (ptr == NULL)
+    // If the list is empty
+    if (*head == NULL)
     {
-        printf("\nList_Overflow");
+        struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
+        strcpy(new_node->name, name);
+        new_node->next = new_node->prev = new_node;
+        *head = new_node;
+        fprintf(pFile_output, "[ OK ] ADD %s", name);
+        return;
     }
-    else
+
+    // If list is not empty
+    /* Find last node */
+    Node *last = (*head)->prev;
+    // Create Node dynamically
+    struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
+    strcpy(new_node->name, name);
+    // Start is going to be next of new_node
+    new_node->next = *head;
+    // Make new node previous of start
+    (*head)->prev = new_node;
+    // Make last previous of new node
+    new_node->prev = last;
+    // Make new node next of old last
+    last->next = new_node;
+    // Print
+    fprintf(pFile_output, "[ OK ] ADD %s\n", name);
+}
+
+int test(struct Node *start, char name[])
+{
+    struct Node *temp = start;
+    if (temp->name == NULL)
     {
-        strcpy(ptr->data, name);
-        if (head == NULL)
+        return 0;
+    }
+
+    do
+    {
+        int valor = strcmp(name, temp->name);
+        if (valor == 0)
         {
-            head = ptr;
-            ptr->next = head;
-            ptr->prev = head;
+            fprintf(pFile_output, "\n[ ERROR ] ADD %s\n", name);
+            return 1;
         }
-        else
+        temp = temp->next;
+    } while (temp->next != start);
+}
+
+void show(struct Node *start, char name[])
+{
+    struct Node *temp = start;
+    int value = strcmp(temp->name, name);
+    while (value != 0 || temp->next != start)
+    {
+        temp = temp->next;
+        value = strcmp(temp->name, name);
+        if (value == 0)
         {
-            temp = head;
-            while (temp->next != head)
+            fprintf(pFile_output, "[ OK ] %s <- %s -> %s", temp->prev->name, temp->name, temp->next->name);
+            return;
+        }
+        if (temp->next == start)
+        {
+            return;
+        }
+    }
+    fprintf(pFile_output, "[ OK ] %s <- %s -> %s", temp->prev->name, temp->name, temp->next->name);
+}
+
+int main(int argc, char *argv[])
+{
+    struct Node *head = NULL;
+    int remove_string = 0;
+    int show_string = 0;
+    int add_string = 0;
+    int cmp;
+    char command[2];
+    char line[256];
+    char name[51];
+
+    pFile_input = fopen("redesocial.input", "r");
+    if (pFile_input == NULL)
+    {
+        return 1;
+    }
+    pFile_output = fopen("teste.output", "w");
+    if (pFile_output == NULL)
+    {
+        return 1;
+    }
+
+    while ((fscanf(pFile_input, "%[^\n]", line)) != EOF)
+    {
+        strncpy(command, line, 1);
+        add_string = strcmp(command, "A");
+        show_string = strcmp(command, "S");
+        remove_string = strcmp(command, "R");
+
+        strncpy(name, line, 51);
+        if (add_string == 0)
+        {
+            strncpy(name, line + 4, 51);
+            cmp = test(head, name);
+
+            if (cmp == 1)
             {
-                temp = temp->next;
+                fgetc(pFile_input);
+                continue;
             }
-            temp->next = ptr;
-            ptr->prev = temp;
-            head->prev = ptr;
-            ptr->next = head;
-            head = ptr;
+            add(&head, name);
         }
-        fprintf(file_output, "[ OK ] ADD %s\n", name);
-    }
-}
-
-void srch(char name[])
-{
-    struct Node *ptr;
-    int i = 0, flag = 1;
-    ptr = head;
-    if (ptr == NULL)
-    {
-        printf("\nBlank_all_elements.\n");
-    }
-    else
-    {
-        if (head->data == name)
+        else if (show_string == 0)
         {
-            printf("found_location_item %d", i + 1);
-            flag = 0;
+            strncpy(name, line + 5, 51);
+            show(head, name);
         }
-        else
+        else if (remove_string == 0)
         {
-            while (ptr->next != head)
-                if (ptr->data == name)
-                {
-                    printf("element_at_location %d ", i + 1);
-                    flag = 0;
-                    break;
-                }
-                else
-                {
-                    flag = 1;
-                }
-            i++;
-            ptr = ptr->next;
+            strncpy(name, line + 7, 51);
         }
-    }
-    if (flag != 0)
-    {
-        printf("Element_Not_found\n");
-    }
-}
-int main()
-{
-    // Declaração de variável
-    char command[6], name[51];
-    char add[] = "ADD";
-    char show[] = "SHOW";
-
-    // Abertura arquivo de entrada
-    file_input = fopen("entrada.txt", "r");
-    if (file_input == NULL)
-    {
-        return 1;
-    }
-    // Abertura arquivo de saida
-    file_output = fopen("saida.txt", "w");
-    if (file_output == NULL)
-    {
-        return 1;
+        fgetc(pFile_input);
     }
 
-    // Coletar comandos e nomes do arquivo de saida
-    while (fgets(buffer_in, 256, file_input))
-    {
-        sscanf(buffer_in, "%s %[^\n]%*c", command, name);
-        if (strstr(command, add) != NULL)
-        {
-            insertion(name);
-        }
-        if (strstr(command, show) != NULL)
-        {
-            srch(name);
-        }
-    }
-    // Checagem do arquivo de saida
-    size_t bytes_wrote = fwrite(buffer_out, sizeof(char), strlen(buffer_out), file_output);
-    if (bytes_wrote != strlen(buffer_out))
-    {
-        return 1;
-    }
-
-    // Fechar arquivos
-    fclose(file_input);
-    fclose(file_output);
+    fclose(pFile_input);
+    fclose(pFile_output);
+    return 0;
 }
