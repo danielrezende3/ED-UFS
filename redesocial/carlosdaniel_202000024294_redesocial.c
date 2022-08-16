@@ -40,7 +40,7 @@ void add(struct Node **head, char name[])
     // Make new node next of old last
     last->next = new_node;
     // Print
-    fprintf(pFile_output, "[ OK ] ADD %s\n", name);
+    fprintf(pFile_output, "\n[ OK ] ADD %s", name);
 }
 
 int test(struct Node *start, char name[])
@@ -56,7 +56,7 @@ int test(struct Node *start, char name[])
         int valor = strcmp(name, temp->name);
         if (valor == 0)
         {
-            fprintf(pFile_output, "\n[ ERROR ] ADD %s\n", name);
+            fprintf(pFile_output, "\n[ ERROR ] ADD %s", name);
             return 1;
         }
         temp = temp->next;
@@ -67,21 +67,88 @@ void show(struct Node *start, char name[])
 {
     struct Node *temp = start;
     int value = strcmp(temp->name, name);
-    while (value != 0 || temp->next != start)
+    while (value != 0)
     {
         temp = temp->next;
         value = strcmp(temp->name, name);
         if (value == 0)
         {
-            fprintf(pFile_output, "[ OK ] %s <- %s -> %s", temp->prev->name, temp->name, temp->next->name);
+            fprintf(pFile_output, "\n[ OK ] %s < - %s - > %s", temp->prev->name, temp->name, temp->next->name);
             return;
         }
-        if (temp->next == start)
+        if (temp == start)
         {
+            fprintf(pFile_output, "\n[ ERROR ] ? < - %s - > ?", name);
             return;
         }
     }
-    fprintf(pFile_output, "[ OK ] %s <- %s -> %s", temp->prev->name, temp->name, temp->next->name);
+    fprintf(pFile_output, "\n[ OK ] %s < - %s - > %s", temp->prev->name, temp->name, temp->next->name);
+}
+
+void deleteNode(struct Node **start, char name[])
+{
+    if (*start == NULL)
+        return;
+    struct Node *curr = *start, *prev_1 = NULL;
+    while (curr->name != name)
+    {
+        // If node is not present in the list
+        int value = strcmp(curr->name, name);
+        if (value == 0)
+        {
+            fprintf(pFile_output, "\n[ OK ] REMOVE %s", name);
+            break;
+        }
+        if (curr->next == *start)
+        {
+            fprintf(pFile_output, "\n[ ERROR ] REMOVE %s", name);
+            return;
+        }
+        prev_1 = curr;
+        curr = curr->next;
+    }
+    // Check if node is the only node in list
+    if (curr->next == *start && prev_1 == NULL)
+    {
+        (*start) = NULL;
+        free(curr);
+        return;
+    }
+
+    // If list has more than one node,
+    // check if it is the first node
+    if (curr == *start)
+    {
+        // Move prev_1 to last node
+        prev_1 = (*start)->prev;
+
+        // Move start ahead
+        *start = (*start)->next;
+
+        // Adjust the pointers of prev_1 and start node
+        prev_1->next = *start;
+        (*start)->prev = prev_1;
+        free(curr);
+    }
+
+    // check if it is the last node
+    else if (curr->next == *start)
+    {
+        // Adjust the pointers of prev_1 and start node
+        prev_1->next = *start;
+        (*start)->prev = prev_1;
+        free(curr);
+    }
+    else
+    {
+        // create new pointer, points to next of curr node
+        struct Node *temp = curr->next;
+
+        // Adjust the pointers of prev_1 and temp node
+        prev_1->next = temp;
+        temp->prev = prev_1;
+        free(curr);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -134,6 +201,7 @@ int main(int argc, char *argv[])
         else if (remove_string == 0)
         {
             strncpy(name, line + 7, 51);
+            deleteNode(&head, name);
         }
         fgetc(pFile_input);
     }

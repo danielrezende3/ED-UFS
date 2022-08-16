@@ -2,53 +2,79 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define TRUE 1
+#define FALSE 0
+
+// Declarao de structs
 typedef struct Documento
 {
-    char nome[51];
-    int paginas;
+    char nome_documento[51];
+    int total_paginas;
 } Documento;
 
 typedef struct Impressora
 {
-    char nome[51];
+    char nome_impressora[51];
+    int id_impressora;
+    int ocupado;
+    int paginas_faltam;
+    int id_documento;
 } Impressora;
 
-typedef struct Stack
-{
-    int top;
-    unsigned capacity;
-    int *array;
-} Stack;
+// Declaracao de variaveis globais
+int soma_paginas = 0;
+int documento_atual = 0;
+int counter_quem_terminou = 0;
+int total_documentos;
+FILE *pFile_output;
+FILE *pFile_input;
+// TODO: mudar para os valores originais (1000)
+Documento documentos[1000];
+Impressora impressoras[1000];
+int quem_terminou[1000];
 
-struct Stack *createStack(unsigned capacity)
+void processar(Impressora *impressora)
 {
-    struct Stack *stack = (struct Stack *)malloc(sizeof(struct Stack));
-    stack->capacity = capacity;
-    stack->top = -1;
-    stack->array = (int *)malloc(stack->capacity * sizeof(int));
-    return stack;
-}
-
-int isFull(struct Stack *stack)
-{
-    return stack->top == stack->capacity - 1;
-}
-void push(struct Stack *stack, int item)
-{
-    if (isFull(stack))
-        return;
-    stack->array[++stack->top] = item;
-    printf("%d pushed to stack\n", item);
+    if (impressora->ocupado == FALSE)
+    {
+        impressora->ocupado = TRUE;
+        impressora->paginas_faltam = documentos[documento_atual].total_paginas;
+        impressora->id_documento = documento_atual;
+        documento_atual += 1;
+    }
+    else
+    {
+        if (impressora->paginas_faltam > 1)
+        {
+            impressora->paginas_faltam -= 1;
+            soma_paginas += 1;
+        }
+        else if (total_documentos >= documento_atual)
+        {
+            // TODO: quando chegar no maximo de documentos, parar de fazer analise
+            quem_terminou[counter_quem_terminou] = impressora->id_documento;
+            impressora->paginas_faltam = documentos[documento_atual].total_paginas;
+            impressora->id_documento = documento_atual;
+            soma_paginas += 1;
+            documento_atual += 1;
+            counter_quem_terminou += 1;
+        }
+        else
+        {
+            quem_terminou[counter_quem_terminou] = impressora->id_documento;
+            impressora->paginas_faltam = documentos[documento_atual].total_paginas;
+            impressora->id_documento = documento_atual;
+            soma_paginas += 1;
+        }
+    }
 }
 
 int main(int argc, char *argv[])
 {
-    FILE *pFile_input;
-    FILE *pFile_output;
-    char line[256];
-    char nome_impressora[51];
-    int num_impressoras;
-    int num_documentos;
+    // Declarando variaveis
+    int total_impressoras;
+    int total_paginas = 0;
+    // Abertura de arquivos
     pFile_input = fopen("sistemadeimpressao.input", "r");
     if (pFile_input == NULL)
     {
@@ -59,25 +85,41 @@ int main(int argc, char *argv[])
     {
         return 1;
     }
-
-    fscanf(pFile_input, "%i", &num_impressoras);
+    // Coletando dados
+    fscanf(pFile_input, "%i", &total_impressoras);
     fgetc(pFile_input);
-    Impressora impressoras[num_impressoras];
-    for (int i = 0; i < num_impressoras; i++)
+    for (int i = 0; i < total_impressoras; i++)
     {
-        fscanf(pFile_input, "%s", &nome_impressora);
+        fscanf(pFile_input, "%s", &impressoras[i].nome_impressora);
+        impressoras[i].ocupado = FALSE;
+        impressoras[i].id_impressora = i;
         fgetc(pFile_input);
-        strcpy(impressoras[i].nome, nome_impressora);
     }
-    fscanf(pFile_input, "%i", &num_documentos);
+    fscanf(pFile_input, "%i", &total_documentos);
     fgetc(pFile_input);
-    Stack *stack = createStack(num_documentos);
-    // Documento documentos[num_documentos];
-    // for (int i = 0; i < num_documentos; i++)
-    // {
-    //     fscanf(pFile_input, "%s %i", &documentos[i].nome, &documentos[i].paginas);
-    //     fgetc(pFile_input);
-    // }
+    for (int i = 0; i < total_documentos; i++)
+    {
+        fscanf(pFile_input, "%s %i", &documentos[i].nome_documento, &documentos[i].total_paginas);
+        total_paginas += documentos[i].total_paginas;
+        fgetc(pFile_input);
+    }
 
+    // Processamento dados,
+    while (soma_paginas < total_paginas)
+    {
+        for (int i = 0; i < total_impressoras; i++)
+        {
+            processar(&impressoras[i]);
+        }
+    }
+
+    // Impressao dos dados
+    for (int i = total_documentos - 1; i >= 0; i--)
+    {
+        printf("%s\n", documentos[quem_terminou[i]].nome_documento);
+    }
+    // Fechamento dos arquivos
+    fclose(pFile_input);
+    fclose(pFile_output);
     return 0;
 }
