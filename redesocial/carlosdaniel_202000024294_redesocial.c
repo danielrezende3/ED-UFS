@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
     {
         return 1;
     }
-    pFile_output = fopen("teste.output", "w");
+    pFile_output = fopen("redesocial.output", "w");
     if (pFile_output == NULL)
     {
         return 1;
