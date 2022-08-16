@@ -19,6 +19,8 @@ typedef struct Impressora
     int ocupado;
     int paginas_faltam;
     int id_documento;
+    int qnt_doc_impressos;
+    int arr_id_documento[1000];
 } Impressora;
 
 // Declaracao de variaveis globais
@@ -28,18 +30,25 @@ int counter_quem_terminou = 0;
 int total_documentos;
 FILE *pFile_output;
 FILE *pFile_input;
-// TODO: mudar para os valores originais (1000)
 Documento documentos[1000];
 Impressora impressoras[1000];
 int quem_terminou[1000];
 
+// Processamento dos dados, ele vai alterando o estado de acorod com qual impressora esta livre,
+// assim colocando um printf ao inicio da impressao
 void processar(Impressora *impressora)
 {
     if (impressora->ocupado == FALSE)
     {
+        // Antes de alterar dados
         impressora->ocupado = TRUE;
         impressora->paginas_faltam = documentos[documento_atual].total_paginas;
         impressora->id_documento = documento_atual;
+        impressora->arr_id_documento[impressora->qnt_doc_impressos] = impressora->id_documento;
+        fprintf(pFile_output, "[%s] %s-%ip\n", impressora->nome_impressora, documentos[documento_atual].nome_documento, documentos[documento_atual].total_paginas);
+
+        // Depois de alterar dados
+        impressora->qnt_doc_impressos += 1;
         documento_atual += 1;
     }
     else
@@ -49,21 +58,41 @@ void processar(Impressora *impressora)
             impressora->paginas_faltam -= 1;
             soma_paginas += 1;
         }
-        else if (total_documentos >= documento_atual)
+        else if (total_documentos > documento_atual)
         {
-            // TODO: quando chegar no maximo de documentos, parar de fazer analise
+            // Antes de alterar dados
             quem_terminou[counter_quem_terminou] = impressora->id_documento;
             impressora->paginas_faltam = documentos[documento_atual].total_paginas;
             impressora->id_documento = documento_atual;
+            impressora->arr_id_documento[impressora->qnt_doc_impressos] = impressora->id_documento;
+            // Depois de alterar dados
             soma_paginas += 1;
             documento_atual += 1;
             counter_quem_terminou += 1;
+            impressora->qnt_doc_impressos += 1;
+            fprintf(pFile_output, "[%s] ", impressora->nome_impressora);
+            for (int i = impressora->qnt_doc_impressos - 1; i >= 0; i--)
+            {
+                int valor = impressora->arr_id_documento[i];
+                if (i == 0)
+                {
+                    fprintf(pFile_output, "%s-%ip", documentos[valor].nome_documento, documentos[valor].total_paginas);
+                }
+                else
+                {
+                    fprintf(pFile_output, "%s-%ip, ", documentos[valor].nome_documento, documentos[valor].total_paginas);
+                }
+            }
+            fprintf(pFile_output, "\n");
         }
-        else
+        else if (impressora->paginas_faltam > 0)
         {
+            // Antes de alterar dados
             quem_terminou[counter_quem_terminou] = impressora->id_documento;
-            impressora->paginas_faltam = documentos[documento_atual].total_paginas;
-            impressora->id_documento = documento_atual;
+
+            // Depois de alterar dados
+            counter_quem_terminou += 1;
+            impressora->paginas_faltam -= 1;
             soma_paginas += 1;
         }
     }
@@ -104,7 +133,7 @@ int main(int argc, char *argv[])
         fgetc(pFile_input);
     }
 
-    // Processamento dados,
+    // Processamento dados
     while (soma_paginas < total_paginas)
     {
         for (int i = 0; i < total_impressoras; i++)
@@ -114,9 +143,17 @@ int main(int argc, char *argv[])
     }
 
     // Impressao dos dados
+    fprintf(pFile_output, "%ip\n", total_paginas);
     for (int i = total_documentos - 1; i >= 0; i--)
     {
-        printf("%s\n", documentos[quem_terminou[i]].nome_documento);
+        if (i == 0)
+        {
+            fprintf(pFile_output, "%s-%ip", documentos[quem_terminou[i]].nome_documento, documentos[quem_terminou[i]].total_paginas);
+        }
+        else
+        {
+            fprintf(pFile_output, "%s-%ip\n", documentos[quem_terminou[i]].nome_documento, documentos[quem_terminou[i]].total_paginas);
+        }
     }
     // Fechamento dos arquivos
     fclose(pFile_input);
