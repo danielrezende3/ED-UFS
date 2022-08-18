@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
     FILE *pFile_input;
     FILE *pFile_output;
     Resultado resultado[99];
+    Livros livros[99];
     char line[164];
     char compare_string[14];
     int compare_int;
@@ -108,7 +109,6 @@ int main(int argc, char *argv[])
 
     // Leitura dos arquivos
     fscanf(pFile_input, "%i", &num_livros);
-    Livros livros[num_livros];
     while ((fscanf(pFile_input, "%[^\n]", line)) != EOF)
     {
         if (i < 0)
@@ -119,11 +119,11 @@ int main(int argc, char *argv[])
         }
         else if (i >= 0 && i < num_livros)
         {
-            strncpy(livros[i].ISBN_string, line, 13);
+            memcpy(livros[i].ISBN_string, line, 13);
             livros[i].ISBN_number = atoi(livros[i].ISBN_string);
             livros[i].ISBN_number = livros[i].ISBN_number % 2011;
-            strncpy(livros[i].Autor, line + 14, strcspn(line + 14, "&"));
-            strncpy(livros[i].Titulo, line + strlen(livros[i].Autor) + 15, 101);
+            memcpy(livros[i].Autor, line + 14, strcspn(line + 14, "&"));
+            memcpy(livros[i].Titulo, line + strlen(livros[i].Autor) + 15, 101);
             fgetc(pFile_input);
             i += 1;
         }
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
         else if (i > num_livros && i <= num_livros + consultas)
         {
 
-            strncpy(compare_string, line, 13);
+            memcpy(compare_string, line, 13);
             compare_int = atoi(compare_string);
             compare_int = compare_int % 2011;
             strcpy(resultado[j].ISBN_string, compare_string);

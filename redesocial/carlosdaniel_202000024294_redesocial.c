@@ -151,7 +151,7 @@ void deleteNode(struct Node **start, char name[])
     }
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     struct Node *head = NULL;
     int remove_string = 0;
