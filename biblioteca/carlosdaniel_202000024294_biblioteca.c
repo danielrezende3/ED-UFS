@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     char compare_string[14];
     int compare_int;
     int num_livros;
-    int consultas;
+    int consultas = 1;
     int valor;
     int media_bb;
     int media_bi;
