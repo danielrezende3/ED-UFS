@@ -96,12 +96,12 @@ int main(int argc, char *argv[])
     int soma_bi = 0;
     int soma_bb = 0;
 
-    pFile_input = fopen("biblioteca.input", "r");
+    pFile_input = fopen(argv[1], "r");
     if (pFile_input == NULL)
     {
         return 1;
     }
-    pFile_output = fopen("biblioteca.output", "w");
+    pFile_output = fopen(argv[2], "w");
     if (pFile_output == NULL)
     {
         return 1;
