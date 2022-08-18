@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     fgetc(pFile_input);
     for (int i = 0; i < total_impressoras; i++)
     {
-        fscanf(pFile_input, "%s", &impressoras[i].nome_impressora);
+        fscanf(pFile_input, "%s", impressoras[i].nome_impressora);
         impressoras[i].ocupado = FALSE;
         impressoras[i].id_impressora = i;
         fgetc(pFile_input);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     fgetc(pFile_input);
     for (int i = 0; i < total_documentos; i++)
     {
-        fscanf(pFile_input, "%s %i", &documentos[i].nome_documento, &documentos[i].total_paginas);
+        fscanf(pFile_input, "%s %i", documentos[i].nome_documento, &documentos[i].total_paginas);
         total_paginas += documentos[i].total_paginas;
         fgetc(pFile_input);
     }
