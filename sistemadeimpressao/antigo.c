@@ -104,12 +104,12 @@ int main(int argc, char *argv[])
     int total_impressoras;
     int total_paginas = 0;
     // Abertura de arquivos
-    pFile_input = fopen(argv[1], "r");
+    pFile_input = fopen("professor.input", "r");
     if (pFile_input == NULL)
     {
         return 1;
     }
-    pFile_output = fopen(argv[2], "w");
+    pFile_output = fopen("meu.output", "w");
     if (pFile_output == NULL)
     {
         return 1;
