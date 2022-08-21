@@ -2,36 +2,99 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Node
+#define TRUE 1
+#define FALSE 0
+
+struct Impressora
+{
+    int isimprimindo;
+    char nome_impressora[51];
+    int autal_pags;
+    struct Impressora *prox;
+};
+typedef struct Impressora Impressora;
+
+struct Documento
 {
     char nome_documento[51];
     int num_paginas;
-    struct Node *prox;
+    struct Documento *prox;
 };
-typedef struct Node TipoNode;
+typedef struct Documento Documento;
 
 struct Pilha
 {
-    TipoNode *topo;
+    Documento *topo;
     int tamanho;
 };
-typedef struct Pilha TipoPilha;
+typedef struct Pilha Pilha;
 
-void IniciaPilha(TipoPilha *pilha)
+struct Impressora *addToEmpty(struct Impressora *last, char nome_impressora[])
+{
+    // This function is only for empty list
+    if (last != NULL)
+        return last;
+    // Creating a node dynamically.
+    struct Impressora *temp = (struct Impressora *)malloc(sizeof(struct Impressora));
+    // Assigning the data.
+    memcpy(temp->nome_impressora, nome_impressora, 51);
+    temp->isimprimindo = 0;
+    last = temp;
+    // Creating the link.
+    last->prox = last;
+    return last;
+}
+
+struct Impressora *addBegin(struct Impressora *last, char nome_impressora[])
+{
+    if (last == NULL)
+        return addToEmpty(last, nome_impressora);
+
+    // Creating a node dynamically.
+    struct Impressora *temp = (struct Impressora *)malloc(sizeof(struct Impressora));
+
+    // Assigning the data.
+    memcpy(temp->nome_impressora, nome_impressora, 51);
+    temp->isimprimindo = 0;
+    // Adjusting the links.
+    temp->prox = last->prox;
+    last->prox = temp;
+    return last;
+}
+void traverse(struct Impressora *last)
+{
+    struct Impressora *p;
+    // If list is empty, return.
+    if (last == NULL)
+    {
+        printf("List is empty.");
+        return;
+    }
+    // Pointing to first Node of the list.
+    p = last->prox;
+    // Traversing the list.
+    do
+    {
+        printf("%s ", p->nome_impressora);
+        p = p->prox;
+    } while (p != last->prox);
+}
+void IniciaPilha(Pilha *pilha)
 {
     pilha->topo = NULL;
     pilha->tamanho = 0;
 }
 
-int Vazia(TipoPilha *pilha)
+int Vazia(Pilha *pilha)
 {
     return (pilha->topo == NULL);
 }
 
-void Empilha(int x, char nome[], TipoPilha *pilha)
+void Empilha(int x, char nome[], Pilha *pilha)
 {
-    TipoNode *aux;
-    aux = (TipoNode *)malloc(sizeof(TipoNode));
+    Documento *aux;
+    // Creating a node dynamically.
+    aux = (Documento *)malloc(sizeof(Documento));
     memcpy(aux->nome_documento, nome, 51);
     aux->num_paginas = x;
     aux->prox = pilha->topo;
@@ -39,35 +102,33 @@ void Empilha(int x, char nome[], TipoPilha *pilha)
     pilha->tamanho++;
 }
 
-int Desempilha(TipoPilha *pilha)
+void Desempilha(Pilha *pilha)
 {
-    TipoNode *q;
-    int v;
+    Documento *q;
     if (Vazia(pilha))
     {
-        printf("Lista vazia\n");
-        return 0;
+        return;
     }
     q = pilha->topo;
     pilha->topo = q->prox;
-    v = q->num_paginas;
     free(q);
     pilha->tamanho--;
-    return v;
 }
 
 int main(int argc, char *argv[])
 {
     FILE *input;
     FILE *output;
-    TipoPilha *pilha;
+    Pilha *pilha;
     int qnt_paginas;
     int total_paginas;
     int qnt_documentos;
     int qnt_impressoras;
     char nome_documento[51];
     char nome_impressora[51];
-    pilha = (TipoPilha *)malloc(sizeof(TipoPilha));
+    pilha = (Pilha *)malloc(sizeof(Pilha));
+    Impressora *last = NULL;
+    IniciaPilha(pilha);
     // TODO: trocar nome do arquivo por argv[1]
     input = fopen("casoteste.input", "r");
     if (input == NULL)
@@ -81,14 +142,15 @@ int main(int argc, char *argv[])
         return 1;
     }
     // Coleta de dados
-    IniciaPilha(pilha);
     fscanf(input, "%i", &qnt_impressoras);
     fgetc(input);
     for (int i = 0; i < qnt_impressoras; i++)
     {
         fscanf(input, "%s", nome_impressora);
+        last = addBegin(last, nome_impressora);
         fgetc(input);
     }
+    traverse(last);
     fscanf(input, "%i", &qnt_documentos);
     fgetc(input);
     for (int i = 0; i < qnt_documentos; i++)
@@ -98,7 +160,6 @@ int main(int argc, char *argv[])
         total_paginas += qnt_paginas;
         fgetc(input);
     }
-    printf("%i", pilha->tamanho);
-
+    // Processamento de dados
     return 0;
 }
