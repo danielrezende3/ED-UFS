@@ -2,16 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct No
+struct Node
 {
-    int Valor;
-    struct No *prox;
+    char nome_documento[51];
+    int num_paginas;
+    struct Node *prox;
 };
-typedef struct No TipoNo;
+typedef struct Node TipoNode;
 
 struct Pilha
 {
-    TipoNo *topo;
+    TipoNode *topo;
     int tamanho;
 };
 typedef struct Pilha TipoPilha;
@@ -27,26 +28,46 @@ int Vazia(TipoPilha *pilha)
     return (pilha->topo == NULL);
 }
 
-void Empilha(int x, TipoPilha *pilha)
+void Empilha(int x, char nome[], TipoPilha *pilha)
 {
-    TipoNo *aux;
-    aux = (TipoNo *)malloc(sizeof(TipoNo));
-    aux->Valor = x;
+    TipoNode *aux;
+    aux = (TipoNode *)malloc(sizeof(TipoNode));
+    memcpy(aux->nome_documento, nome, 51);
+    aux->num_paginas = x;
     aux->prox = pilha->topo;
     pilha->topo = aux;
     pilha->tamanho++;
+}
+
+int Desempilha(TipoPilha *pilha)
+{
+    TipoNode *q;
+    int v;
+    if (Vazia(pilha))
+    {
+        printf("Lista vazia\n");
+        return 0;
+    }
+    q = pilha->topo;
+    pilha->topo = q->prox;
+    v = q->num_paginas;
+    free(q);
+    pilha->tamanho--;
+    return v;
 }
 
 int main(int argc, char *argv[])
 {
     FILE *input;
     FILE *output;
+    TipoPilha *pilha;
     int qnt_paginas;
     int total_paginas;
     int qnt_documentos;
     int qnt_impressoras;
     char nome_documento[51];
     char nome_impressora[51];
+    pilha = (TipoPilha *)malloc(sizeof(TipoPilha));
     // TODO: trocar nome do arquivo por argv[1]
     input = fopen("casoteste.input", "r");
     if (input == NULL)
@@ -59,7 +80,8 @@ int main(int argc, char *argv[])
     {
         return 1;
     }
-
+    // Coleta de dados
+    IniciaPilha(pilha);
     fscanf(input, "%i", &qnt_impressoras);
     fgetc(input);
     for (int i = 0; i < qnt_impressoras; i++)
@@ -72,9 +94,11 @@ int main(int argc, char *argv[])
     for (int i = 0; i < qnt_documentos; i++)
     {
         fscanf(input, "%s %i", nome_documento, &qnt_paginas);
+        Empilha(qnt_paginas, nome_documento, pilha);
         total_paginas += qnt_paginas;
         fgetc(input);
     }
+    printf("%i", pilha->tamanho);
 
     return 0;
 }
