@@ -129,10 +129,10 @@ int main(int argc, char *argv[])
     fscanf(pInput, "%i", &total_deletes);
     fgetc(pInput);
     for (int i = 0; i < total_deletes; i++)
-    {
+    {  
         fscanf(pInput, "%i", &value_of_node);
         root = Delete(root, value_of_node);
     }
 
     return 0;
-e}
+}
