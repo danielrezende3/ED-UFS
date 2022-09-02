@@ -6,23 +6,23 @@
 #define TRUE 1
 #define FALSE 0
 
-typedef struct BstNode
+typedef struct Node
 {
     int data;
-    struct BstNode *left;
-    struct BstNode *right;
-} BstNode;
+    struct Node *left;
+    struct Node *right;
+} Node;
 
-BstNode *GetNewNode(int data)
+Node *GetNewNode(int data)
 {
-    BstNode *newNode = (BstNode *)malloc(sizeof(BstNode));
+    Node *newNode = (Node *)malloc(sizeof(Node));
     newNode->data = data;
     newNode->left = NULL;
     newNode->right = NULL;
     return newNode;
 }
 
-BstNode *Insert(BstNode *root, int data)
+Node *Insert(Node *root, int data)
 {
     if (root == NULL)
     {
@@ -41,14 +41,14 @@ BstNode *Insert(BstNode *root, int data)
     return root;
 }
 
-BstNode *FindMin(BstNode *root)
+Node *FindMin(Node *root)
 {
     while (root->left != NULL)
         root = root->left;
     return root;
 }
 
-int Search(BstNode *root, int data)
+int Search(Node *root, int data)
 {
     if (root == NULL)
     {
@@ -68,7 +68,7 @@ int Search(BstNode *root, int data)
     }
 }
 
-struct BstNode *Delete(struct BstNode *root, int data)
+struct Node *Delete(struct Node *root, int data)
 {
     if (root == NULL)
         return root;
@@ -88,20 +88,20 @@ struct BstNode *Delete(struct BstNode *root, int data)
         // Case 2: One child
         else if (root->left == NULL)
         {
-            struct BstNode *temp = root;
+            struct Node *temp = root;
             root = root->right;
             free(temp);
         }
         else if (root->right == NULL)
         {
-            struct BstNode *temp = root;
+            struct Node *temp = root;
             root = root->left;
             free(temp);
         }
         // case 3: 2 children
         else
         {
-            struct BstNode *temp = FindMin(root->right);
+            struct Node *temp = FindMin(root->right);
             root->data = temp->data;
             root->right = Delete(root->right, temp->data);
         }
@@ -112,7 +112,7 @@ struct BstNode *Delete(struct BstNode *root, int data)
 int main(int argc, char *argv[])
 {
     int total_numbers, value_of_node, total_deletes;
-    BstNode *root = NULL;
+    Node *root = NULL;
     FILE *pInput;
     pInput = fopen("professor.input", "r");
     if (pInput == NULL)
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     fscanf(pInput, "%i", &total_deletes);
     fgetc(pInput);
     for (int i = 0; i < total_deletes; i++)
-    {  
+    {
         fscanf(pInput, "%i", &value_of_node);
         root = Delete(root, value_of_node);
     }
