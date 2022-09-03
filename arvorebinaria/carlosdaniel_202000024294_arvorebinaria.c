@@ -6,8 +6,9 @@
 #define FALSE 0
 
 char copia_linhas[62];
+char teste[] = " 1";
 char linha[62];
-int i = 1;
+int i = 0;
 
 struct Node
 {
@@ -24,16 +25,18 @@ struct Node *Insert(struct Node *root, char data[])
     {
         root = (struct Node *)malloc(sizeof(struct Node));
         memcpy(root->data, data, 62);
+        root->order = i;
+        i++;
         root->left = NULL;
         root->right = NULL;
     }
     else if (memcmp(root->data, data, strlen(data)) <= 0)
     {
-        root->left = Insert(root->left, data);
+        root->right = Insert(root->right, data);
     }
     else
     {
-        root->right = Insert(root->right, data);
+        root->left = Insert(root->left, data);
     }
 
     return root;
@@ -51,7 +54,9 @@ int Search(struct Node *root, char data[])
     {
         if (strstr(root->data, "rw") != NULL)
         {
-            memcpy(copia_linhas, root->data, 62);
+            memcpy(root->data, linha, 62);
+            root->order = i;
+            i++;
             return TRUE;
         }
         else
@@ -69,72 +74,62 @@ int Search(struct Node *root, char data[])
     }
 }
 
-struct Node *FindMin(struct Node *root)
-{
-    while (root->left != NULL)
-        root = root->left;
-    return root;
-}
-
-struct Node *Delete(struct Node *root, char data[])
-{
-    if (root == NULL)
-        return root;
-    else if (strcmp(root->data, data) < 0)
-        root->left = Delete(root->left, data);
-    else if (strcmp(root->data, data) > 0)
-        root->right = Delete(root->right, data);
-    else
-    {
-        // Case 1:  No child
-        if (root->left == NULL && root->right == NULL)
-        {
-            free(root);
-            root = NULL;
-        }
-        // Case 2: One child
-        else if (root->left == NULL)
-        {
-            struct Node *temp = root;
-            root = root->right;
-            free(temp);
-        }
-        else if (root->right == NULL)
-        {
-            struct Node *temp = root;
-            root = root->left;
-            free(temp);
-        }
-        // case 3: 2 children
-        else
-        {
-            struct Node *temp = FindMin(root->left);
-            memcpy(root->data, temp->data, 62);
-            root->left = Delete(root->left, temp->data);
-        }
-    }
-    return root;
-}
-
 void Preorder(struct Node *root)
 {
     // base condition for recursion
     // if tree/sub-tree is empty, return and exit
     if (root == NULL)
+    {
         return;
-    Preorder(root->left);                       // Visit left subtree
-    printf("%i %s\n", root->order, root->data); // Print data
-    Preorder(root->right);                      // Visit right subtree
+    }
+    if (strcmp(root->data + strlen(root->data) - 2, teste) == 0)
+    {
+        printf("%i %s byte\n", root->order, root->data); // Print data
+    }
+    else
+    {
+        printf("%i %s bytes\n", root->order, root->data); // Print data
+    }                                                     // Print data
+    Preorder(root->left);                                 // Visit left subtree
+    Preorder(root->right);                                // Visit right subtree
 }
 
 void Inorder(struct Node *root)
 {
     if (root == NULL)
+    {
         return;
+    }
 
-    Inorder(root->right);                       // Visit right subtree
-    printf("%i %s\n", root->order, root->data); // Print data
-    Inorder(root->left);                        // Visit left subtree
+    Inorder(root->left); // Visit left subtree
+    if (strcmp(root->data + strlen(root->data) - 2, teste) == 0)
+    {
+        printf("%i %s byte\n", root->order, root->data); // Print data
+    }
+    else
+    {
+        printf("%i %s bytes\n", root->order, root->data); // Print data
+    }
+    Inorder(root->right); // Visit right subtree
+}
+
+void Postorder(struct Node *root)
+{
+    if (root == NULL)
+    {
+        return;
+    }
+
+    Postorder(root->left);  // Visit left subtree
+    Postorder(root->right); // Visit right subtree
+    if (strcmp(root->data + strlen(root->data) - 2, teste) == 0)
+    {
+        printf("%i %s byte\n", root->order, root->data); // Print data
+    }
+    else
+    {
+        printf("%i %s bytes\n", root->order, root->data); // Print data
+    }                                                     // Print data
 }
 
 int main(int argc, char *argv[])
@@ -143,10 +138,8 @@ int main(int argc, char *argv[])
     int total;
     int avaliar;
     char seps[] = " ";
-    char *token = NULL;
     char *next_token = NULL;
     struct Node *root = NULL;
-
     // Abertura de arquivos
     FILE *pInput;
     FILE *pOutput;
@@ -172,23 +165,27 @@ int main(int argc, char *argv[])
     {
         fscanf(pInput, "%[^\n]", linha);
         memcpy(copia_linhas, linha, 62);
-        // token = strtok_r(copia_linhas, seps, &next_token);
-        // avaliar = Search(root, copia_linhas);
-        // if (avaliar == 1)
-        // {
-        //     root = Delete(root, copia_linhas);
-        // }
+        strtok_r(copia_linhas, seps, &next_token);
+        avaliar = Search(root, copia_linhas);
+        if (avaliar == 1)
+        {
+            continue;
+            fgetc(pInput);
+        }
 
         root = Insert(root, linha);
         fgetc(pInput);
     }
-    
+
     // Print Nodes in Preorder.
-    printf("Preorder:\n");
+    printf("EPD:\n");
+    Inorder(root);
+    printf("\n");
+    printf("PED:\n");
     Preorder(root);
     printf("\n");
-    printf("Inorder:\n");
-    Inorder(root);
+    printf("EDP:\n");
+    Postorder(root);
     printf("\n");
     return 0;
 }
