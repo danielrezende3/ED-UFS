@@ -5,15 +5,16 @@
 #define TRUE 1
 #define FALSE 0
 
-char copia_linhas[62];
+FILE *pOutput;
+char copia_linhas[70];
 char teste[] = " 1";
-char linha[62];
+char linha[70];
 int i = 0;
 
 struct Node
 {
     // 50 (até) caracteres + 1 ponto + 2 de leitura escrita + 1 espaço + 7 (até) bytes + 1 \0
-    char data[62];
+    char data[70];
     int order;
     struct Node *left;
     struct Node *right;
@@ -24,7 +25,7 @@ struct Node *Insert(struct Node *root, char data[])
     if (root == NULL)
     {
         root = (struct Node *)malloc(sizeof(struct Node));
-        memcpy(root->data, data, 62);
+        memcpy(root->data, linha, 70);
         root->order = i;
         i++;
         root->left = NULL;
@@ -52,9 +53,20 @@ int Search(struct Node *root, char data[])
     }
     else if (strstr(root->data, data) != NULL)
     {
-        if (strstr(root->data, "rw") != NULL)
+        if ((strstr(root->data, "rw") != NULL) && (strstr(linha, "ro") != NULL))
         {
-            memcpy(root->data, linha, 62);
+            memcpy(root->data, linha, 70);
+            root->order = i;
+            i++;
+            return TRUE;
+        }
+        else if (strstr(root->data, "ro") != NULL)
+        {
+            return TRUE;
+        }
+        else if ((strstr(root->data, "rw") != NULL) && (strstr(linha, "rw") != NULL))
+        {
+            memcpy(root->data, linha, 70);
             root->order = i;
             i++;
             return TRUE;
@@ -63,6 +75,7 @@ int Search(struct Node *root, char data[])
         {
             return FALSE;
         }
+        
     }
     else if (strcmp(root->data, linha) <= 0)
     {
@@ -84,14 +97,14 @@ void Preorder(struct Node *root)
     }
     if (strcmp(root->data + strlen(root->data) - 2, teste) == 0)
     {
-        printf("%i %s byte\n", root->order, root->data); // Print data
+        fprintf(pOutput, "%i %s byte\n", root->order, root->data); // Print data
     }
     else
     {
-        printf("%i %s bytes\n", root->order, root->data); // Print data
-    }                                                     // Print data
-    Preorder(root->left);                                 // Visit left subtree
-    Preorder(root->right);                                // Visit right subtree
+        fprintf(pOutput, "%i %s bytes\n", root->order, root->data); // Print data
+    }                                                               // Print data
+    Preorder(root->left);                                           // Visit left subtree
+    Preorder(root->right);                                          // Visit right subtree
 }
 
 void Inorder(struct Node *root)
@@ -104,11 +117,11 @@ void Inorder(struct Node *root)
     Inorder(root->left); // Visit left subtree
     if (strcmp(root->data + strlen(root->data) - 2, teste) == 0)
     {
-        printf("%i %s byte\n", root->order, root->data); // Print data
+        fprintf(pOutput, "%i %s byte\n", root->order, root->data); // Print data
     }
     else
     {
-        printf("%i %s bytes\n", root->order, root->data); // Print data
+        fprintf(pOutput, "%i %s bytes\n", root->order, root->data); // Print data
     }
     Inorder(root->right); // Visit right subtree
 }
@@ -124,33 +137,33 @@ void Postorder(struct Node *root)
     Postorder(root->right); // Visit right subtree
     if (strcmp(root->data + strlen(root->data) - 2, teste) == 0)
     {
-        printf("%i %s byte\n", root->order, root->data); // Print data
+        fprintf(pOutput, "%i %s byte\n", root->order, root->data); // Print data
     }
     else
     {
-        printf("%i %s bytes\n", root->order, root->data); // Print data
-    }                                                     // Print data
+        fprintf(pOutput, "%i %s bytes\n", root->order, root->data); // Print data
+    }                                                               // Print data
 }
 
 int main(int argc, char *argv[])
 {
     // Declaração de variáveis
     int total;
+    int j;
     int avaliar;
     char seps[] = " ";
     char *next_token = NULL;
     struct Node *root = NULL;
     // Abertura de arquivos
     FILE *pInput;
-    FILE *pOutput;
-    // TODO: Trocar "teste.input" por "argv[1]"
-    pInput = fopen(argv[1], "r");
+    // TODO: Trocar "teste.input" por argv[1]
+    pInput = fopen("meu.input", "r");
     if (pInput == NULL)
     {
         return 1;
     }
     // TODO: Trocar "meu.output" por "argv[2]"
-    pOutput = fopen(argv[2], "w");
+    pOutput = fopen("meu.output", "w");
     if (pOutput == NULL)
     {
         return 1;
@@ -161,10 +174,10 @@ int main(int argc, char *argv[])
     // Pega a linha completa, realiza um token com apenas o arquivo (ex: "lista_ed.c") e procura na árvore
     // Se não encontrar, apenas inserir, sem problemas,
     // Se encontrar, procurar saber se é possivel deletar e inserir o novo arquivo, se não, cancela a operação.
-    for (int i = 0; i < total; i++)
+    for (j = 0; j < total; j++)
     {
         fscanf(pInput, "%[^\n]", linha);
-        memcpy(copia_linhas, linha, 62);
+        memcpy(copia_linhas, linha, 70);
         strtok_r(copia_linhas, seps, &next_token);
         avaliar = Search(root, copia_linhas);
         if (avaliar == 1)
@@ -173,19 +186,16 @@ int main(int argc, char *argv[])
             fgetc(pInput);
         }
 
-        root = Insert(root, linha);
+        root = Insert(root, copia_linhas);
         fgetc(pInput);
     }
 
-    // Print Nodes in Preorder.
-    printf("EPD:\n");
+    // Print Nodes in Preorder.e
+    fprintf(pOutput, "EPD:\n");
     Inorder(root);
-    printf("\n");
-    printf("PED:\n");
+    fprintf(pOutput, "PED:\n");
     Preorder(root);
-    printf("\n");
-    printf("EDP:\n");
+    fprintf(pOutput, "EDP:\n");
     Postorder(root);
-    printf("\n");
     return 0;
 }
