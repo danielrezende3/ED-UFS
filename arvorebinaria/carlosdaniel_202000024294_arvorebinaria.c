@@ -77,7 +77,7 @@ int Search(struct Node *root, char data[])
         }
         
     }
-    else if (strcmp(root->data, linha) <= 0)
+    else if (memcmp(root->data, data, strlen(data)) >= 0)
     {
         return Search(root->left, data);
     }
@@ -171,9 +171,7 @@ int main(int argc, char *argv[])
 
     fscanf(pInput, "%i", &total);
     fgetc(pInput);
-    // Pega a linha completa, realiza um token com apenas o arquivo (ex: "lista_ed.c") e procura na árvore
-    // Se não encontrar, apenas inserir, sem problemas,
-    // Se encontrar, procurar saber se é possivel deletar e inserir o novo arquivo, se não, cancela a operação.
+
     for (j = 0; j < total; j++)
     {
         fscanf(pInput, "%[^\n]", linha);
@@ -182,15 +180,15 @@ int main(int argc, char *argv[])
         avaliar = Search(root, copia_linhas);
         if (avaliar == 1)
         {
-            continue;
             fgetc(pInput);
+            continue;
         }
 
         root = Insert(root, copia_linhas);
         fgetc(pInput);
     }
 
-    // Print Nodes in Preorder.e
+    // Print Nodes 
     fprintf(pOutput, "EPD:\n");
     Inorder(root);
     fprintf(pOutput, "PED:\n");
