@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
         memcpy(copia_linhas, linha, 70);
         strtok_r(copia_linhas, seps, &next_token);
         avaliar = Search(root, copia_linhas);
+        // teste
         if (avaliar == 1)
         {
             fgetc(pInput);
