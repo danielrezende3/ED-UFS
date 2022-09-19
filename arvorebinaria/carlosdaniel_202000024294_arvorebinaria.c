@@ -171,14 +171,12 @@ int main(int argc, char *argv[])
 
     fscanf(pInput, "%i", &total);
     fgetc(pInput);
-
     for (j = 0; j < total; j++)
     {
         fscanf(pInput, "%[^\n]", linha);
         memcpy(copia_linhas, linha, 70);
         strtok_r(copia_linhas, seps, &next_token);
         avaliar = Search(root, copia_linhas);
-        // teste
         if (avaliar == 1)
         {
             fgetc(pInput);
