@@ -1,6 +1,6 @@
 .vscode
 *.exe
-*.out
+*.o
 arvorebinaria/carlosdaniel_202000024294_arvorebinaria
 arvorebinaria/exemploslide
 meu.output
