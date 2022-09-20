@@ -1,5 +1,7 @@
 .vscode
 *.exe
+*.out
 arvorebinaria/carlosdaniel_202000024294_arvorebinaria
 arvorebinaria/exemploslide
 meu.output
+teste.c

@@ -157,13 +157,13 @@ int main(int argc, char *argv[])
     // Abertura de arquivos
     FILE *pInput;
     // TODO: Trocar "teste.input" por argv[1]
-    pInput = fopen("meu.input", "r");
+    pInput = fopen(argv[1], "r");
     if (pInput == NULL)
     {
         return 1;
     }
     // TODO: Trocar "meu.output" por "argv[2]"
-    pOutput = fopen("meu.output", "w");
+    pOutput = fopen(argv[2], "w");
     if (pOutput == NULL)
     {
         return 1;
