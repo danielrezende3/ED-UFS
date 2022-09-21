@@ -9,13 +9,15 @@
 
 FILE *pOutput;
 char linha[TOTAL_LENGTH];
-char palavra2[SINONIMO_LENGTH];
+char sinonimos[TOTAL_LENGTH];
+char numero[TOTAL_LENGTH];
 
 struct Node
 {
     int height;
-    char palavra[WORD_LENGTH];
-    char sinonimos[SINONIMO_LENGTH];
+    int qnt_sinonimos;
+    char palavra[TOTAL_LENGTH];
+    char sinonimos[TOTAL_LENGTH][TOTAL_LENGTH];
     struct Node *left;
     struct Node *right;
 };
@@ -79,9 +81,20 @@ struct Node *leftRotate(struct Node *x)
 
 struct Node *newNode(char data[])
 {
+    int i = 0;
+    const char s[2] = " ";
+    char *token;
     struct Node *node = (struct Node *)malloc(sizeof(struct Node));
-    memcpy(node->palavra, data, WORD_LENGTH);
-    memcpy(node->sinonimos, palavra2, SINONIMO_LENGTH);
+    strcpy(node->palavra, data);
+    node->qnt_sinonimos = atoi(numero);
+    token = strtok(sinonimos, s);
+    while (token != NULL && i < node->qnt_sinonimos)
+    {
+        strcpy(node->sinonimos[i], token);
+        i++;
+        token = strtok(NULL, s);
+    }
+
     node->left = NULL;
     node->right = NULL;
     node->height = 1;
@@ -96,11 +109,11 @@ struct Node *insert(struct Node *node, char data[])
     {
         return (newNode(data));
     }
-    if (memcmp(node->palavra, data, WORD_LENGTH) < 0)
+    if (strcmp(node->palavra, data) <= 0)
     {
         node->left = insert(node->left, data);
     }
-    else if (memcmp(node->palavra, data, WORD_LENGTH) > 0)
+    else if (strcmp(node->palavra, data) > 0)
     {
         node->right = insert(node->right, data);
     }
@@ -117,23 +130,22 @@ struct Node *insert(struct Node *node, char data[])
     // there are 4 cases
 
     // Left Left Case
-
-    if (balance > 1 && memcmp(node->left->palavra, data, WORD_LENGTH) < 0)
+    if (balance > 1 && strcmp(node->left->palavra, data) < 0)
         return rightRotate(node);
 
     // Right Right Case
-    if (balance < -1 && memcmp(node->right->palavra, data, WORD_LENGTH) > 0)
+    if (balance < -1 && strcmp(node->right->palavra, data) > 0)
         return leftRotate(node);
 
     // Left Right Case
-    if (balance > 1 && memcmp(node->left->palavra, data, WORD_LENGTH) > 0)
+    if (balance > 1 && strcmp(node->left->palavra, data) > 0)
     {
         node->left = leftRotate(node->left);
         return rightRotate(node);
     }
 
     // Right Left Case
-    if (balance < -1 && memcmp(node->left->palavra, data, WORD_LENGTH) < 0)
+    if (balance < -1 && strcmp(node->right->palavra, data) < 0)
     {
         node->right = rightRotate(node->right);
         return leftRotate(node);
@@ -142,26 +154,45 @@ struct Node *insert(struct Node *node, char data[])
     /* return the (unchanged) node pointer */
     return node;
 }
+
 struct Node *search(struct Node *node, char data[])
 {
     if (node == NULL)
     {
-        // fprintf(pOutput, "-\n");
-        printf("-\n");
+
+        // ffprintf(pOutput,pOutput, "-\n");
+        fprintf(pOutput, "?]\n-\n");
         return NULL;
     }
     if (strcmp(node->palavra, data) == 0)
     {
-        printf("rodei!");
+        fprintf(pOutput,"%s]", node->palavra);
+        fprintf(pOutput,"\n");
+        for (int i = 0; i < node->qnt_sinonimos; i++)
+        {
+            if (i < node->qnt_sinonimos - 1)
+            {
+                fprintf(pOutput, "%s,", node->sinonimos[i]);
+            }
+            else
+            {
+                fprintf(pOutput, "%s\n", node->sinonimos[i]);
+            }
+        }
+
+        return node;
     }
     if (strcmp(node->palavra, data) < 0)
     {
+        fprintf(pOutput, "%s->", node->palavra);
         node->left = search(node->left, data);
     }
     else if (strcmp(node->palavra, data) > 0)
     {
+        fprintf(pOutput, "%s->", node->palavra);
         node->right = search(node->right, data);
     }
+    return node;
 }
 
 int main(int argc, char const *argv[])
@@ -169,51 +200,57 @@ int main(int argc, char const *argv[])
     int total_words;
     int total_searchs;
     char espaco[] = " ";
-    char palavra1[WORD_LENGTH];
+    char palavra[TOTAL_LENGTH];
     char *token = NULL;
-
     total_words = 0;
     total_searchs = 0;
     struct Node *root = NULL;
-
     FILE *pInput;
+
     // TODO: Trocar "teste.input" por argv[1]
-    pInput = fopen("slide.input", "r");
+    pInput = fopen(argv[1], "r");
     if (pInput == NULL)
     {
         return 1;
     }
-    // TODO: Trocar "meu.output" por "argv[2]"
-    pOutput = fopen("meu.output", "w");
+    // TODO: Trocar "meu.output" por argv[2]
+    pOutput = fopen(argv[2], "w");
     if (pOutput == NULL)
     {
         return 1;
     }
 
+    // pega o total de palavras a serem adicionadas, faz um loop com a linha inteira,
+    // Separa a primeira palavra, retira o número, e coloca em "sinonimo[]"
     if (fscanf(pInput, "%i", &total_words))
         ;
     fgetc(pInput);
-    // pega o total de palavras a serem adicionadas, faz um loop com a linha inteira,
-    // Separa a primeira palavra, retira o número, e coloca em "sinonimo[]"
     for (int i = 0; i < total_words; i++)
     {
         if (fscanf(pInput, "%[^\n]", linha))
             ;
-        memcpy(palavra1, linha, WORD_LENGTH);
-        strtok_r(palavra1, espaco, &token);
-        memcpy(palavra2, linha + strlen(palavra1) + 3, SINONIMO_LENGTH);
-        root = insert(root, palavra1);
-        // sempre fica por último
+        // Copia linha(strcpy), separa pra palavra(strtok)
+        strcpy(palavra, linha);
+        strtok_r(palavra, espaco, &token);
+        strcpy(numero, palavra + strlen(palavra) + 1);
+        strtok_r(numero, espaco, &token);
+        strcpy(sinonimos, linha + strlen(palavra) + 3);
+        // inserção no node
+        root = insert(root, palavra);
+        // fgetc sempre fica por último
         fgetc(pInput);
     }
+
     if (fscanf(pInput, "%i", &total_searchs))
         ;
     fgetc(pInput);
     for (int i = 0; i < total_searchs; i++)
     {
-        if (fscanf(pInput, "%[^\n]", linha))
+        if (fscanf(pInput, "%s", linha))
             ;
+        fprintf(pOutput, "[");
         search(root, linha);
+        fgetc(pInput);
     }
 
     return 0;
