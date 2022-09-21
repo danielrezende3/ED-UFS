@@ -17,7 +17,7 @@ struct Node
     int height;
     int qnt_sinonimos;
     char palavra[TOTAL_LENGTH];
-    char sinonimos[TOTAL_LENGTH][TOTAL_LENGTH];
+    char sinonimos[TOTAL_LENGTH];
     struct Node *left;
     struct Node *right;
 };
@@ -81,20 +81,10 @@ struct Node *leftRotate(struct Node *x)
 
 struct Node *newNode(char data[])
 {
-    int i = 0;
-    const char s[2] = " ";
-    char *token;
     struct Node *node = (struct Node *)malloc(sizeof(struct Node));
     strcpy(node->palavra, data);
     node->qnt_sinonimos = atoi(numero);
-    token = strtok(sinonimos, s);
-    while (token != NULL && i < node->qnt_sinonimos)
-    {
-        strcpy(node->sinonimos[i], token);
-        i++;
-        token = strtok(NULL, s);
-    }
-
+    strcpy(node->sinonimos, sinonimos);
     node->left = NULL;
     node->right = NULL;
     node->height = 1;
@@ -166,20 +156,9 @@ struct Node *search(struct Node *node, char data[])
     }
     if (strcmp(node->palavra, data) == 0)
     {
-        fprintf(pOutput,"%s]", node->palavra);
-        fprintf(pOutput,"\n");
-        for (int i = 0; i < node->qnt_sinonimos; i++)
-        {
-            if (i < node->qnt_sinonimos - 1)
-            {
-                fprintf(pOutput, "%s,", node->sinonimos[i]);
-            }
-            else
-            {
-                fprintf(pOutput, "%s\n", node->sinonimos[i]);
-            }
-        }
-
+        fprintf(pOutput, "%s]", node->palavra);
+        fprintf(pOutput, "\n");
+        fprintf(pOutput, "%s\n", node->sinonimos);
         return node;
     }
     if (strcmp(node->palavra, data) < 0)
@@ -193,6 +172,16 @@ struct Node *search(struct Node *node, char data[])
         node->right = search(node->right, data);
     }
     return node;
+}
+
+void replace_spaces(char *str)
+{
+    while (*str)
+    {
+        if (*str == ' ')
+            *str = ',';
+        str++;
+    }
 }
 
 int main(int argc, char const *argv[])
@@ -221,7 +210,7 @@ int main(int argc, char const *argv[])
     }
 
     // pega o total de palavras a serem adicionadas, faz um loop com a linha inteira,
-    // Separa a primeira palavra, retira o número, e coloca em "sinonimo[]"
+    // Separa a primeira palavra, retira o número, coloca entre os sinonimos virgula."
     if (fscanf(pInput, "%i", &total_words))
         ;
     fgetc(pInput);
@@ -235,6 +224,7 @@ int main(int argc, char const *argv[])
         strcpy(numero, palavra + strlen(palavra) + 1);
         strtok_r(numero, espaco, &token);
         strcpy(sinonimos, linha + strlen(palavra) + 3);
+        replace_spaces(sinonimos);
         // inserção no node
         root = insert(root, palavra);
         // fgetc sempre fica por último
