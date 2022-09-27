@@ -9,7 +9,7 @@ struct Node
     // Vetor de filhos
     struct Node **P;
     // quantidade utilizada
-    int n;
+    int ordem_da_arvore;
 };
 
 int main(int argc, char const *argv[])

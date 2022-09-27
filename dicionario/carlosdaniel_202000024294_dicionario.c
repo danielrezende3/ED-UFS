@@ -2,22 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WORD_LENGTH 32 // palavra(30) + 1\0
-#define TOTAL_SINONIMOS 11
-#define SINONIMO_LENGTH (WORD_LENGTH * TOTAL_SINONIMOS) // ((palavra) 30 + 1 (espaco)) x 10
-#define TOTAL_LENGTH (WORD_LENGTH + SINONIMO_LENGTH)    // word_length + sinonimo_length
+#define WORD_LENGTH 31 // palavra(30) + 1\0
+#define TOTAL_SINONIMOS 10 // 10 sinonimos
 
 FILE *pOutput;
-char linha[TOTAL_LENGTH];
-char sinonimos[TOTAL_LENGTH];
-char numero[TOTAL_LENGTH];
+char palavra[WORD_LENGTH];
+char linha[WORD_LENGTH];
+char sinonimos[TOTAL_SINONIMOS][WORD_LENGTH];
+int numero;
 
 struct Node
 {
     int height;
     int qnt_sinonimos;
-    char palavra[TOTAL_LENGTH];
-    char sinonimos[TOTAL_LENGTH];
+    char palavra[WORD_LENGTH];
+    char sinonimos[TOTAL_SINONIMOS][WORD_LENGTH];
     struct Node *left;
     struct Node *right;
 };
@@ -82,9 +81,12 @@ struct Node *leftRotate(struct Node *x)
 struct Node *newNode(char data[])
 {
     struct Node *node = (struct Node *)malloc(sizeof(struct Node));
+    node->qnt_sinonimos = numero;
     strcpy(node->palavra, data);
-    strcpy(node->sinonimos, sinonimos);
-    node->qnt_sinonimos = atoi(numero);
+    for (int i = 0; i < node->qnt_sinonimos; i++)
+    {
+        strcpy(node->sinonimos[i], sinonimos[i]);
+    }
     node->left = NULL;
     node->right = NULL;
     node->height = 1;
@@ -153,11 +155,23 @@ struct Node *search(struct Node *node, char data[])
         fprintf(pOutput, "?]\n-\n");
         return NULL;
     }
+    // TODO: refazer
     if (strcmp(node->palavra, data) == 0)
     {
         fprintf(pOutput, "%s]", node->palavra);
         fprintf(pOutput, "\n");
-        fprintf(pOutput, "%s\n", node->sinonimos);
+        for (int i = 0; i < node->qnt_sinonimos; i++)
+        {
+            if (i < node->qnt_sinonimos - 1)
+            {
+                fprintf(pOutput, "%s,", node->sinonimos[i]);
+            }
+            else
+            {
+                fprintf(pOutput, "%s", node->sinonimos[i]);
+            }
+        }
+        fprintf(pOutput, "\n");
         return node;
     }
     if (strcmp(node->palavra, data) < 0)
@@ -173,21 +187,10 @@ struct Node *search(struct Node *node, char data[])
     return node;
 }
 
-void replace_spaces(char *str)
-{
-    while (*str)
-    {
-        if (*str == ' ')
-            *str = ',';
-        str++;
-    }
-}
-
 int main(int argc, char const *argv[])
 {
     int total_words;
     int total_searchs;
-    char palavra[TOTAL_LENGTH];
     total_words = 0;
     total_searchs = 0;
     struct Node *root = NULL;
@@ -205,15 +208,16 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    // pega o total de palavras a serem adicionadas, faz um loop com a linha inteira,
-    // Separa a primeira palavra, retira o número, coloca entre os sinonimos virgula."
     fscanf(pInput, "%i", &total_words);
     fgetc(pInput);
     for (int i = 0; i < total_words; i++)
     {
-        fscanf(pInput, "%s %s", palavra, numero); 
-        fscanf(pInput, "%[^\n]", sinonimos+1);
-        replace_spaces(sinonimos);
+        fscanf(pInput, "%s %i", palavra, &numero);
+        for (int j = 0; j < numero; j++)
+        {
+            fscanf(pInput, "%s", sinonimos[j]);
+        }
+
         // inserção no node
         root = insert(root, palavra);
         // fgetc sempre fica por último
@@ -229,6 +233,5 @@ int main(int argc, char const *argv[])
         search(root, linha);
         fgetc(pInput);
     }
-
     return 0;
 }
