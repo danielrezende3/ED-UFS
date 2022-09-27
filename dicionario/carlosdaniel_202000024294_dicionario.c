@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WORD_LENGTH 31 // palavra(30) + 1\0
-#define TOTAL_SINONIMOS 10
+#define WORD_LENGTH 32 // palavra(30) + 1\0
+#define TOTAL_SINONIMOS 11
 #define SINONIMO_LENGTH (WORD_LENGTH * TOTAL_SINONIMOS) // ((palavra) 30 + 1 (espaco)) x 10
 #define TOTAL_LENGTH (WORD_LENGTH + SINONIMO_LENGTH)    // word_length + sinonimo_length
 
@@ -83,12 +83,11 @@ struct Node *newNode(char data[])
 {
     struct Node *node = (struct Node *)malloc(sizeof(struct Node));
     strcpy(node->palavra, data);
-    node->qnt_sinonimos = atoi(numero);
     strcpy(node->sinonimos, sinonimos);
+    node->qnt_sinonimos = atoi(numero);
     node->left = NULL;
     node->right = NULL;
     node->height = 1;
-
     return node;
 }
 
@@ -188,21 +187,18 @@ int main(int argc, char const *argv[])
 {
     int total_words;
     int total_searchs;
-    char espaco[] = " ";
     char palavra[TOTAL_LENGTH];
-    char *token = NULL;
     total_words = 0;
     total_searchs = 0;
     struct Node *root = NULL;
     FILE *pInput;
-
-    // TODO: Trocar "teste.input" por argv[1]
+    // pOutput = fopen(argv[1], "r");
     pInput = fopen(argv[1], "r");
     if (pInput == NULL)
     {
         return 1;
     }
-    // TODO: Trocar "meu.output" por argv[2]
+    // pOutput = fopen(argv[2], "w");
     pOutput = fopen(argv[2], "w");
     if (pOutput == NULL)
     {
@@ -211,19 +207,12 @@ int main(int argc, char const *argv[])
 
     // pega o total de palavras a serem adicionadas, faz um loop com a linha inteira,
     // Separa a primeira palavra, retira o número, coloca entre os sinonimos virgula."
-    if (fscanf(pInput, "%i", &total_words))
-        ;
+    fscanf(pInput, "%i", &total_words);
     fgetc(pInput);
     for (int i = 0; i < total_words; i++)
     {
-        if (fscanf(pInput, "%[^\n]", linha))
-            ;
-        // Copia linha(strcpy), separa pra palavra(strtok)
-        strcpy(palavra, linha);
-        strtok_r(palavra, espaco, &token);
-        strcpy(numero, palavra + strlen(palavra) + 1);
-        strtok_r(numero, espaco, &token);
-        strcpy(sinonimos, linha + strlen(palavra) + 3);
+        fscanf(pInput, "%s %s", palavra, numero); 
+        fscanf(pInput, "%[^\n]", sinonimos+1);
         replace_spaces(sinonimos);
         // inserção no node
         root = insert(root, palavra);
@@ -231,13 +220,11 @@ int main(int argc, char const *argv[])
         fgetc(pInput);
     }
 
-    if (fscanf(pInput, "%i", &total_searchs))
-        ;
+    fscanf(pInput, "%i", &total_searchs);
     fgetc(pInput);
     for (int i = 0; i < total_searchs; i++)
     {
-        if (fscanf(pInput, "%s", linha))
-            ;
+        fscanf(pInput, "%s", linha);
         fprintf(pOutput, "[");
         search(root, linha);
         fgetc(pInput);
