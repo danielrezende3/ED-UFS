@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WORD_LENGTH 31 // palavra(30) + 1\0
+#define WORD_LENGTH 31     // palavra(30) + 1\0
 #define TOTAL_SINONIMOS 10 // 10 sinonimos
 
 FILE *pOutput;
@@ -25,7 +25,7 @@ int max(int a, int b)
 {
     return (a > b) ? a : b;
 }
-
+// TODO: melhorar a performance do height
 int height(struct Node *node)
 {
     if (node == NULL)
@@ -44,38 +44,26 @@ int getBalance(struct Node *node)
     return height(node->left) - height(node->right);
 }
 
-struct Node *rightRotate(struct Node *y)
+struct Node *rightRotate(struct Node *head)
 {
-    struct Node *x = y->left;
-    struct Node *T2 = x->right;
+    struct Node *newhead = head->left;
+    head->left = newhead->right;
+    newhead->right = head;
 
-    // Perform rotation
-    x->right = y;
-    y->left = T2;
-
-    // Update heights
-    y->height = max(height(y->left), height(y->right)) + 1;
-    x->height = max(height(x->left), height(x->right)) + 1;
-
-    // Return new root
-    return x;
+    head->height = 1 + max(height(head->left), height(head->right));
+    newhead->height = 1 + max(height(newhead->left), height(newhead->right));
+    return newhead;
 }
 
-struct Node *leftRotate(struct Node *x)
+struct Node *leftRotate(struct Node *head)
 {
-    struct Node *y = x->right;
-    struct Node *T2 = y->left;
+    struct Node *newhead = head->right;
+    head->right = newhead->left;
+    newhead->left = head;
 
-    // Perform rotation
-    y->left = x;
-    x->right = T2;
-
-    // Update heights
-    x->height = max(height(x->left), height(x->right)) + 1;
-    y->height = max(height(y->left), height(y->right)) + 1;
-
-    // Return new root
-    return y;
+    head->height = 1 + max(height(head->left), height(head->right));
+    newhead->height = 1 + max(height(newhead->left), height(newhead->right));
+    return newhead;
 }
 
 struct Node *newNode(char data[])
@@ -195,14 +183,14 @@ int main(int argc, char const *argv[])
     total_searchs = 0;
     struct Node *root = NULL;
     FILE *pInput;
-    // pOutput = fopen(argv[1], "r");
     pInput = fopen(argv[1], "r");
+    // pInput = fopen("python.input", "r");
     if (pInput == NULL)
     {
         return 1;
     }
-    // pOutput = fopen(argv[2], "w");
     pOutput = fopen(argv[2], "w");
+    // pOutput = fopen("meu.output", "w");
     if (pOutput == NULL)
     {
         return 1;
