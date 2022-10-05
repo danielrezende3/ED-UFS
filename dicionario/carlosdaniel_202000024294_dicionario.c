@@ -169,14 +169,14 @@ int main(int argc, char const *argv[])
     total_searchs = 0;
     struct Node *root = NULL;
     FILE *pInput;
-    // pInput = fopen(argv[1], "r");
-    pInput = fopen("dicionario.input", "r");
+    pInput = fopen(argv[1], "r");
+    // pInput = fopen("dicionario.input", "r");
     if (pInput == NULL)
     {
         return 1;
     }
     pOutput = fopen(argv[2], "w");
-    pOutput = fopen("meu.output", "w");
+    // pOutput = fopen("meu.output", "w");
     if (pOutput == NULL)
     {
         return 1;
