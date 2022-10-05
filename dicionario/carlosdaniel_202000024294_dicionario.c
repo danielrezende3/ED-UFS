@@ -25,7 +25,6 @@ int max(int a, int b)
 {
     return (a > b) ? a : b;
 }
-// TODO: melhorar a performance do height
 int height(struct Node *node)
 {
     if (node == NULL)
@@ -97,40 +96,29 @@ struct Node *insert(struct Node *node, char data[])
         node->right = insert(node->right, data);
     }
 
-    /* 2. Update height of this ancestor node */
     node->height = 1 + max(height(node->left), height(node->right));
 
-    /* 3. Get the balance factor of this ancestor
-        node to check whether this node became
-        unbalanced */
     int balance = getBalance(node);
 
-    // If this node becomes unbalanced, then
-    // there are 4 cases
 
-    // Left Left Case
     if (balance > 1 && strcmp(node->left->palavra, data) < 0)
         return rightRotate(node);
 
-    // Right Right Case
     if (balance < -1 && strcmp(node->right->palavra, data) > 0)
         return leftRotate(node);
 
-    // Left Right Case
     if (balance > 1 && strcmp(node->left->palavra, data) > 0)
     {
         node->left = leftRotate(node->left);
         return rightRotate(node);
     }
 
-    // Right Left Case
     if (balance < -1 && strcmp(node->right->palavra, data) < 0)
     {
         node->right = rightRotate(node->right);
         return leftRotate(node);
     }
 
-    /* return the (unchanged) node pointer */
     return node;
 }
 
@@ -139,11 +127,9 @@ struct Node *search(struct Node *node, char data[])
     if (node == NULL)
     {
 
-        // ffprintf(pOutput,pOutput, "-\n");
         fprintf(pOutput, "?]\n-\n");
         return NULL;
     }
-    // TODO: refazer
     if (strcmp(node->palavra, data) == 0)
     {
         fprintf(pOutput, "%s]", node->palavra);
@@ -183,14 +169,14 @@ int main(int argc, char const *argv[])
     total_searchs = 0;
     struct Node *root = NULL;
     FILE *pInput;
-    pInput = fopen(argv[1], "r");
-    // pInput = fopen("python.input", "r");
+    // pInput = fopen(argv[1], "r");
+    pInput = fopen("dicionario.input", "r");
     if (pInput == NULL)
     {
         return 1;
     }
     pOutput = fopen(argv[2], "w");
-    // pOutput = fopen("meu.output", "w");
+    pOutput = fopen("meu.output", "w");
     if (pOutput == NULL)
     {
         return 1;
