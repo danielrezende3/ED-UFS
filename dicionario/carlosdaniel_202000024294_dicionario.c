@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WORD_LENGTH 31     // palavra(30) + 1\0
+#define WORD_LENGTH 50     // palavra(30) + 1\0
 #define TOTAL_SINONIMOS 10 // 10 sinonimos
 
 FILE *pOutput;
@@ -205,10 +205,7 @@ int main(int argc, char const *argv[])
         {
             fscanf(pInput, "%s", sinonimos[j]);
         }
-
-        // inserção no node
         root = insert(root, palavra);
-        // fgetc sempre fica por último
         fgetc(pInput);
     }
 
