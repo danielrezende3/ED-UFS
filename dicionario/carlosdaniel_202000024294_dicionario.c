@@ -88,7 +88,7 @@ struct Node *insert(struct Node *node, char data[])
     {
         return (newNode(data));
     }
-    if (strcmp(node->palavra, data) <= 0)
+    if (strcmp(node->palavra, data) < 0)
     {
         node->left = insert(node->left, data);
     }
