@@ -3,8 +3,10 @@
 *.o
 arvorebinaria/carlosdaniel_202000024294_arvorebinaria
 arvorebinaria/exemploslide
+meu.input
 meu.output
 teste.c
+teste.cpp
 dicionario/carlosdaniel_202000024294_dicionario
 .gitignore
 dicionario/meu.input
