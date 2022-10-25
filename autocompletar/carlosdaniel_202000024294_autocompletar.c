@@ -12,8 +12,7 @@ char palavra[21];
 int index_palavra = 0;
 FILE *pInput;
 FILE *pOutput;
-char buffer[21 * 50];
-char newbuffer[21 * 50];
+char buffer[21 * 9000];
 
 struct TrieNode
 {
@@ -150,14 +149,14 @@ int main(int argc, char const *argv[])
     int qnt_termos, qnt_solicitacoes;
     struct TrieNode *root = getNode();
 
-    // pInput = fopen(argv[1], "r");
-    pInput = fopen("autocompletar.input", "r");
+    pInput = fopen(argv[1], "r");
+    // pInput = fopen("autocompletar.input", "r");
     if (pInput == NULL)
     {
         return 1;
     }
-    // pOutput = fopen(argv[2], "w");
-    pOutput = fopen("meu.output", "w");
+    pOutput = fopen(argv[2], "w");
+    // pOutput = fopen("meu.output", "w");
     if (pOutput == NULL)
     {
         return 1;
