@@ -75,7 +75,6 @@ int Search(struct Node *root, char data[])
         {
             return FALSE;
         }
-        
     }
     else if (memcmp(root->data, data, strlen(data)) >= 0)
     {
@@ -187,7 +186,7 @@ int main(int argc, char *argv[])
         fgetc(pInput);
     }
 
-    // Print Nodes 
+    // Print Nodes
     fprintf(pOutput, "EPD:\n");
     Inorder(root);
     fprintf(pOutput, "PED:\n");
