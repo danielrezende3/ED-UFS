@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <limits.h>
 
 #define TAMANHO_SORTEADO 10
 #define TAMANHO_APOSTA 15
@@ -80,7 +81,7 @@ void deleteRoot(Ticket *root, int num)
     int i;
     for (i = 0; i < root->tamanho; i++)
     {
-        if (num = root->num_apostados[i])
+        if (num == root->num_apostados[i])
         {
             break;
         }
@@ -98,10 +99,14 @@ void deleteRoot(Ticket *root, int num)
 int main(int argc, char const *argv[])
 {
     int premio;
+    int maior_acertos = INT_MIN;
+    int menor_acertos = INT_MAX;
     int numero;
     FILE *pInput;
     FILE *pOutput;
     int qnt_apostas;
+    Ticket sorteado;
+    sorteado.tamanho = 0;
 
     // Leitura e escrita dos arquivos
     // pInput = fopen(argv[1], "r");
@@ -119,9 +124,6 @@ int main(int argc, char const *argv[])
 
     fscanf(pInput, "%i", &premio);
     fscanf(pInput, "%i", &qnt_apostas);
-    Ticket sorteado;
-    Ticket apostas[qnt_apostas];
-    sorteado.tamanho = 0;
     // Coleta os numeros da loteria e faz uma arvore heap
     for (int i = 0; i < TAMANHO_SORTEADO; i++)
     {
@@ -130,6 +132,7 @@ int main(int argc, char const *argv[])
     }
     // sempre repete a nova estrutura apostas com tamanho e qnt_acertos 0
     // Faz a coleta dos numeros e faz uma arvora heap
+    Ticket apostas[qnt_apostas];
     for (int i = 0; i < qnt_apostas; i++)
     {
         apostas[i].tamanho = 0;
@@ -141,7 +144,80 @@ int main(int argc, char const *argv[])
             insert(&apostas[i], numero);
         }
     }
+    while (sorteado.tamanho > 0)
+    {
+        int flag = 1;
+        int numA = sorteado.num_apostados[0];
 
-    
+        for (int i = 0; i < qnt_apostas; i++)
+        {
+            int numB = apostas[i].num_apostados[0];
+
+            if (numA == numB && apostas[i].tamanho > 0)
+            {
+                apostas[i].qnt_acertos++;
+                deleteRoot(&apostas[i], apostas[i].num_apostados[0]);
+                continue;
+            }
+            if (numA < numB && apostas[i].tamanho > 0)
+            {
+                deleteRoot(&apostas[i], apostas[i].num_apostados[0]);
+                flag = 0;
+                continue;
+            }
+
+            if (numA > numB && apostas[i].tamanho > 0)
+            {
+                continue;
+            }
+        }
+
+        if (flag == 1)
+        {
+            deleteRoot(&sorteado, sorteado.num_apostados[0]);
+        }
+    }
+    for (int i = 0; i < qnt_apostas; i++)
+    {
+        if (maior_acertos < apostas[i].qnt_acertos)
+        {
+            maior_acertos = apostas[i].qnt_acertos;
+        }
+        if (menor_acertos > apostas[i].qnt_acertos && apostas[i].qnt_acertos > 0)
+        {
+            menor_acertos = apostas[i].qnt_acertos;
+        }
+    }
+
+    int arr_maior[qnt_apostas];
+    int arr_tamanho_maior = 0;
+    int arr_menor[qnt_apostas];
+    int arr_tamanho_menor = 0;
+    for (int i = 0; i < qnt_apostas; i++)
+    {
+        if (maior_acertos == apostas[i].qnt_acertos)
+        {
+            arr_maior[arr_tamanho_maior] = i;
+            arr_tamanho_maior++;
+        }
+        if (menor_acertos == apostas[i].qnt_acertos)
+        {
+            arr_menor[arr_tamanho_menor] = i;
+            arr_tamanho_menor++;
+        }
+    }
+    premio = premio / 2;
+    fprintf(pOutput, "[%i:%i:%i]\n", arr_tamanho_maior, maior_acertos, premio / arr_tamanho_maior);
+    for (int i = 0; i < arr_tamanho_maior; i++)
+    {
+        int valor = arr_maior[i];
+        fprintf(pOutput, "%s\n", apostas[valor].identificador);
+    }
+    fprintf(pOutput, "[%i:%i:%i]\n", arr_tamanho_menor, menor_acertos, premio / arr_tamanho_menor);
+    for (int i = 0; i < arr_tamanho_menor; i++)
+    {
+        int valor = arr_menor[i];
+        fprintf(pOutput, "%s\n", apostas[valor].identificador);
+    }
     return 0;
 }
