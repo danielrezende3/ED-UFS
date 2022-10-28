@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 
 #define TAMANHO_SORTEADO 10
@@ -11,7 +12,6 @@ typedef struct Ticket
     char identificador[TAMANHO_HASH];
     int num_apostados[TAMANHO_APOSTA];
     int tamanho;
-    int flag;
 } Ticket;
 
 int parent(int i)
@@ -109,14 +109,14 @@ int main(int argc, char const *argv[])
     sorteado.tamanho = 0;
 
     // Leitura e escrita dos arquivos
-    // pInput = fopen(argv[1], "r");
-    pInput = fopen("loteria.input", "r");
+    pInput = fopen(argv[1], "r");
+    // pInput = fopen("loteria.input", "r");
     if (pInput == NULL)
     {
         return 1;
     }
-    // pOutput = fopen(argv[2], "w");
-    pOutput = fopen("meu.output", "w");
+    pOutput = fopen(argv[2], "w");
+    // pOutput = fopen("meu.output", "w");
     if (pOutput == NULL)
     {
         return 1;
@@ -124,6 +124,7 @@ int main(int argc, char const *argv[])
 
     fscanf(pInput, "%i", &premio);
     fscanf(pInput, "%i", &qnt_apostas);
+    Ticket *apostas = (Ticket *)malloc(qnt_apostas * sizeof(struct Ticket));
     // Coleta os numeros da loteria e faz uma arvore heap
     for (int i = 0; i < TAMANHO_SORTEADO; i++)
     {
@@ -132,7 +133,6 @@ int main(int argc, char const *argv[])
     }
     // sempre repete a nova estrutura apostas com tamanho e qnt_acertos 0
     // Faz a coleta dos numeros e faz uma arvora heap
-    Ticket apostas[qnt_apostas];
     for (int i = 0; i < qnt_apostas; i++)
     {
         apostas[i].tamanho = 0;
