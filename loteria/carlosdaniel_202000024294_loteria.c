@@ -110,7 +110,7 @@ int main(int argc, char const *argv[])
 
     // Leitura e escrita dos arquivos
     pInput = fopen(argv[1], "r");
-    // pInput = fopen("loteria.input", "r");
+    // pInput = fopen("large.input", "r");
     if (pInput == NULL)
     {
         return 1;
@@ -183,7 +183,7 @@ int main(int argc, char const *argv[])
         {
             maior_acertos = apostas[i].qnt_acertos;
         }
-        if (menor_acertos > apostas[i].qnt_acertos && apostas[i].qnt_acertos > 0)
+        if (menor_acertos > apostas[i].qnt_acertos && apostas[i].qnt_acertos > -1)
         {
             menor_acertos = apostas[i].qnt_acertos;
         }
