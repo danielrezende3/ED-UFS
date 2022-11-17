@@ -1,48 +1,38 @@
 // C implementation of search and insert operations
 // on Trie
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
 #define ALFABETO (26)
-
+#define MAX 999
+/* Its used to record the max length of the autocomplete */
 int max_length = 0;
+/* function insert utilizes this*/
 char palavra[21];
-int index_palavra = 0;
-FILE *pInput;
-FILE *pOutput;
-char buffer[21 * 9000];
+char buffer[MAX];
 
-struct TrieNode
-{
+struct TrieNode {
     struct TrieNode *children[ALFABETO];
 
     bool isEndOfWord;
 };
 
-int max(int a, int b)
-{
-    return (a > b) ? a : b;
-}
-
-int char_to_index(char c)
-{
-    return (int)c - (int)'a';
-}
-
-struct TrieNode *getNode(void)
-{
+/* Cria uma referencia para pNode, verifica se malloc foi criado,
+entao define pnode->IsEndOfword como falso e seus filhos como nulo */
+struct TrieNode *getNode(void) {
     struct TrieNode *pNode = NULL;
 
     pNode = (struct TrieNode *)malloc(sizeof(struct TrieNode));
 
   if (pNode) {
         pNode->isEndOfWord = false;
-
-        for (int i = 0; i < ALFABETO; i++)
+    for (int i = 0; i < ALFABETO; i++) {
             pNode->children[i] = NULL;
     }
+  }
 
     return pNode;
 }
