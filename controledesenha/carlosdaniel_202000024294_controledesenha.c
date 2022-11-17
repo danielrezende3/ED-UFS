@@ -6,8 +6,8 @@ typedef struct Pessoa
 {
     char nome_pessoa[51];
     unsigned int idade;
-    int atendimento; // 0 convencional, 1 preferencial
-    int prioridade;
+    unsigned int atendimento; 
+    unsigned int prioridade;
 } Pessoa;
 
 typedef struct Orgao
@@ -16,7 +16,7 @@ typedef struct Orgao
     unsigned int qnt_atendentes;
     unsigned int tamanho;
     Pessoa *pessoa;
-    int qnt_pessoas;
+    unsigned int qnt_pessoas;
 } Orgao;
 
 int parent(int i)
@@ -103,22 +103,22 @@ int main(int argc, char const *argv[])
 {
     FILE *input;
     FILE *output;
-    int qnt_orgaos;
-    int qnt_pessoas;
+    unsigned int qnt_orgaos;
+    unsigned int qnt_pessoas;
     // Buffer that captures the entire string
     char line[110];
 
     // Leitura dos arquivos
-    // input = fopen(argv[1], "r");
-    input = fopen("controledesenha.input", "r");
+    input = fopen(argv[1], "r");
+    // input = fopen("controledesenhagrande.input", "r");
     if (input == NULL)
     {
         return 1;
     }
 
     // Escrita dos arquivos
-    // output = fopen(argv[2], "w");
-    output = fopen("meu.output", "w");
+    output = fopen(argv[2], "w");
+    // output = fopen("meu.output", "w");
     if (output == NULL)
     {
         return 1;
@@ -131,7 +131,7 @@ int main(int argc, char const *argv[])
 
     // Faz a leitura e armazenamento de dados dos orgaos,
     // inicializa orgao[i].tamanho = 0
-    for (int i = 0; i < qnt_orgaos; i++)
+    for (unsigned int i = 0; i < qnt_orgaos; i++)
     {
         fscanf(input, "%s %i", orgao[i].nome_orgao, &orgao[i].qnt_atendentes);
         orgao[i].tamanho = 0;
@@ -139,7 +139,7 @@ int main(int argc, char const *argv[])
 
     // Ler qnt_pessoas e malloc dentro da struct
     fscanf(input, "%i", &qnt_pessoas);
-    for (int i = 0; i < qnt_orgaos; i++)
+    for (unsigned int i = 0; i < qnt_orgaos; i++)
     {
         orgao[i].pessoa = (Pessoa *)malloc(qnt_pessoas * sizeof(struct Pessoa));
     }
@@ -147,7 +147,7 @@ int main(int argc, char const *argv[])
     // pula para a proxima linha
     fgetc(input);
 
-    for (int i = 0; i < qnt_pessoas; i++)
+    for (unsigned int i = 0; i < qnt_pessoas; i++)
     {
         // Capture the entire line
         fscanf(input, "%[^\n]", line);
@@ -156,7 +156,7 @@ int main(int argc, char const *argv[])
         char *token = strtok(line, "|");
 
         // Faz separacao da string in teira e faz o heapify
-        for (int j = 0; j < qnt_orgaos; j++)
+        for (unsigned int j = 0; j < qnt_orgaos; j++)
         {
             // Compare token with name orgao, to input to correct
             // orgao
@@ -193,26 +193,31 @@ int main(int argc, char const *argv[])
     while (flag)
     {
         flag = 0;
-        for (int i = 0; i < qnt_orgaos; i++)
+        for (unsigned int i = 0; i < qnt_orgaos; i++)
         {
             if (orgao[i].tamanho > 0)
             {
-                printf("%s:", orgao[i].nome_orgao);
+                fprintf(output, "%s:", orgao[i].nome_orgao);
             }
             for (unsigned int j = 0; j < orgao[i].qnt_atendentes; j++)
             {
                 if (orgao[i].tamanho > 1 && (orgao[i].qnt_atendentes - 1) != j)
                 {
                     flag = 1;
-                    printf("%s,", orgao[i].pessoa->nome_pessoa);
+                    fprintf(output, "%s,", orgao[i].pessoa->nome_pessoa);
                     deleteroot(&orgao[i]);
                 }
                 else if (orgao[i].tamanho > 0 && (orgao[i].qnt_atendentes - 1) == j)
                 {
                     flag = 1;
-                    printf("%s", orgao[i].pessoa->nome_pessoa);
+                    fprintf(output, "%s", orgao[i].pessoa->nome_pessoa);
                     deleteroot(&orgao[i]);
                 }
+                // else if (orgao[i].tamanho == 0 && (orgao[i].qnt_atendentes - 1) == j)
+                // {
+                //     flag = 1;
+                //     fprintf(output, "%s", orgao[i].pessoa->nome_pessoa);
+                // }
                 else
                 {
                     flag = 0;
@@ -220,7 +225,7 @@ int main(int argc, char const *argv[])
             }
             if (orgao[i].tamanho >= 0 && flag == 1)
             {
-                printf("\n");
+                fprintf(output, "\n");
             }
         }
     }

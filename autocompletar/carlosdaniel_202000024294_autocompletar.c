@@ -37,9 +37,7 @@ struct TrieNode *getNode(void)
 
     pNode = (struct TrieNode *)malloc(sizeof(struct TrieNode));
 
-    if (pNode)
-    {
-
+  if (pNode) {
         pNode->isEndOfWord = false;
 
         for (int i = 0; i < ALFABETO; i++)
