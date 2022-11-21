@@ -6,15 +6,17 @@
 #include <string.h>
 
 #define ALFABETO (26)
-#define MAX 999
+#define MAX 9999
+#define WORD_LENGTH 21
 /* Its used to record the max length of the autocomplete */
 int max_length = 0;
 /* function insert utilizes this*/
-char palavra[21];
+char palavra[WORD_LENGTH];
 char buffer[MAX];
-
+int index_palavra;
 struct TrieNode {
   struct TrieNode *children[ALFABETO];
+  int level;
   bool isEndOfWord;
 };
 
@@ -57,6 +59,7 @@ void insert(struct TrieNode *root, const char *key) {
   max_length = max(max_length, length);
   int index;
   int level;
+
   struct TrieNode *cur = root;
 
   for (level = 0; level < length; level++) {
@@ -64,7 +67,7 @@ void insert(struct TrieNode *root, const char *key) {
     if (!cur->children[index]) {
       cur->children[index] = getNode();
     }
-
+    cur->level = level;
     cur = cur->children[index];
   }
   cur->isEndOfWord = true;
@@ -72,8 +75,8 @@ void insert(struct TrieNode *root, const char *key) {
 /* Append last char to array
    ? why use size_t? */
 char *appendCharToCharArray(const char *array, char a) {
-  size_t len = strlen(array);
-  char *ret = (char *)malloc(2 * sizeof(len));
+  int len = strlen(array);
+  char *ret = (char *)malloc(sizeof(len));
 
   strcpy(ret, array);
   ret[len] = a;
@@ -84,12 +87,16 @@ char *appendCharToCharArray(const char *array, char a) {
 /** TODO: Definir uma descricao sobre essa funcao*/
 void suggestionsRec(struct TrieNode *root, const char *currPrefix) {
   // found a string in Trie with the given prefix
+  if (root == NULL) {
+    return;
+  }
+
   if (root->isEndOfWord) {
     strcat(buffer, currPrefix);
     strcat(buffer, ",");
   }
   for (int i = 0; i < ALFABETO; i++)
-    if (root->children[i]) {
+    if (root->children[i] && root->level < index_palavra + 2) {
       // child node character value
       char child = 'a' + i;
       suggestionsRec(root->children[i],
@@ -100,33 +107,30 @@ void suggestionsRec(struct TrieNode *root, const char *currPrefix) {
 /** TODO: Preciso fazer com que palavras com pelo menos length 3, sejam
  * sugeridas */
 void search(struct TrieNode *root, const char *key) {
-  // ? Porque eu faco isso?
+  int index, level;
+  // Define the length to run on a for loop
   int length = strlen(key);
   /* Define index_palavra, but its used only here?*/
-  int index_palavra = 0;
+  index_palavra = 0;
   /* Crio uma copia do root para poder fazer a travessia*/
   struct TrieNode *pCrawl = root;
 
-  int index;
-  int level;
   for (level = 0; level < length + 1; level++) {
     index = charToIndex(key[level]);
 
-    if (!pCrawl->children[index]) {
-      if (palavra[0] == 0) {
-        break;
-      } else {
-        suggestionsRec(pCrawl, palavra);
-        break;
-      }
+    if (level > 1) {
+      suggestionsRec(pCrawl, palavra);
     }
+    if (pCrawl == NULL) {
+      break;
+    }
+
     palavra[index_palavra] = key[level];
     index_palavra++;
     pCrawl = pCrawl->children[index];
   }
-  /**
-   * ? Porque eu faco isso?*/
-  memset(palavra, 0, sizeof(palavra));
+  /* Reseto a apalvra porque ela vai ser usada denovo futuras vezes*/
+  memset(palavra, 0, WORD_LENGTH);
 }
 
 int main(int argc, char const *argv[]) {
@@ -136,13 +140,13 @@ int main(int argc, char const *argv[]) {
   struct TrieNode *root = getNode();
   FILE *Input;
   FILE *Output;
-  // Input = fopen(argv[1], "r");
-  Input = fopen("autocompletarlarge.input", "r");
+  Input = fopen(argv[1], "r");
+  // Input = fopen("autocompletarlarge.input", "r");
   if (Input == NULL) {
     return 1;
   }
-  // Output = fopen(argv[2], "w");
-  Output = fopen("meu.output", "w");
+  Output = fopen(argv[2], "w");
+  // Output = fopen("meu.output", "w");
   if (Output == NULL) {
     return 1;
   }
